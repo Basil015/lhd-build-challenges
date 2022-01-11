@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+ 
+ <title>Pixelator</title>
+</head>
+<style>
+  canvas{
+    
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 500px;
+  
+    }
+  
+</style>
+<body>
+
+ 
+  <img src="refeence.png">
+
+<img src="refeence.png"  id="pixelitimg" alt="">
+<canvas id="pixelitcanvas"></canvas>
+<script src="pixelit.js"></script>
+<script>
+  //create object
+  const px = new pixelit();
+  px.draw().pixelate().setScale(10);
+</script>
+
+
+</body>
+
+</html>
