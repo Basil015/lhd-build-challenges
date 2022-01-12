@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>JS</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/processing.js/1.4.8/processing.min.js"></script>
+</head>
+<style>
+ canvas{
+    
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 450px;
+  
+    }
+
+</style>
+<body>
+
+     
+            <canvas id="canvas"></canvas>
+    <script>
+       
+
+        var canvas = document.getElementById("canvas");
+        var processing = new Processing(canvas, function(processing) {
+            processing.size(400, 400);
+            processing.background(0xFFF);
+    
+            var mouseIsPressed = false;
+            processing.mousePressed = function () { mouseIsPressed = true; };
+            processing.mouseReleased = function () { mouseIsPressed = false; };
+    
+            var keyIsPressed = false;
+            processing.keyPressed = function () { keyIsPressed = true; };
+            processing.keyReleased = function () { keyIsPressed = false; };
+    
+            function getImage(s) {
+                var url = "https://www.kasandbox.org/programming-images/" + s + ".png";
+                processing.externals.sketch.imageCache.add(url);
+                return processing.loadImage(url);
+            }
+    
+            with (processing) {
+                
+
+                var rank = "E";
+var points = 0;
+var RTRC = function(rect1, rect2) {
+
+    return (rect1.x + rect1.width > rect2.x && rect1.x < rect2.x + rect2.width && rect1.y + rect1.height > rect2.y && rect1.y < rect2.y + rect2.height);
+};
+
+
+var RTEC = function(ellipse, rect) {
+ 
+    var closestPointX = 0, closestPointY = 0;
+    
+    // finding closest x side
+    if (rect.x < ellipse.x - ellipse.radius/2) {
+        closestPointX = rect.x + rect.width;
+    } else {
+        closestPointX = rect.x;
+    }
+    
+    // finding closest y side
+    if (rect.y < ellipse.y - ellipse.radius/2) {
+        closestPointY = rect.y + rect.height;
+    } else {
+        closestPointY = rect.y;
+    }
+    
+    // returns a boolean statement that checks whether or not the closest corner of the rectangle is less the ellipses radius (size)
+    return abs(dist(closestPointX, closestPointY, ellipse.x, ellipse.y)) < ellipse.radius;
+};
+
+var scene = "menu";
+
+// an object to keep track of the mouse's coordinates
+var mouse = {x : mouseX, y : mouseY, width : 0, height : 0};
+
+// Creating a Button Constructor Function
+var Button = function(config) { // we will define config as an object storing our needed information
+    this.x = config.x;
+    this.y = config.y;
+    // width/height variables for rectangle
+    this.width = config.width || 25;
+    this.height = config.height || 25;
+    // radius variable for circles
+    this.radius = config.radius || 25;
+    
+    // is this button a circle or rectangle (ect)
+    this.shape = config.shape || "rect";
+    
+    // two functions to contain methods for whether or not the button is being hovered over
+    this.hoverEffect = config.hoverEffect || function() {};
+    this.absenceHover = config.absenceHover || function() {};
+    
+    // creating a function to define that does something when this button is clicked
+    this.clickEffect = config.clickEffect || function() {};
+    
+    // what the shape of the button is
+    this.shape = config.shape || "rect";
+    
+    // what is the label (title) and its size
+    this.label = config.label || "";
+    this.labelSize = config.labelSize || 25;
+    
+    // what is the color of the button
+    this.color = config.color;
+};
+
+//Function to call on later to see if the mouse is inside
+Button.prototype.isMouseInside = function() {
+    if (this.shape === "rect") {
+        return RTRC(this, mouse);
+    } else if (this.shape === "circle") {
+        return RTEC(this, mouse);
+    }
+};
+    
+//If the mouse is inside when we call "hover", then call "hoverEffect", else if it's not, then call "absenceHover"
+Button.prototype.hover = function() {
+    if (this.isMouseInside()) {
+        cursor('pointer');
+        this.hoverEffect();
+    } else {
+        cursor('auto');
+        this.absenceHover();
+    }
+};
+
+//If the mouse is inside when we call "click", then call the "clickEffect", (note: we only call it in the mouseClicked function, so if the mouse is inside when we click, then we call the "clickEffect"
+Button.prototype.clicked = function() {
+    if (this.isMouseInside()) {
+        this.clickEffect();
+    }
+};
+    
+//Displaying the button
+Button.prototype.display = function() {
+    //Calling the hover function
+    this.hover();
+    fill(this.color);
+    textSize(this.labelSize);
+    if (this.shape === "rect") {
+        rect(this.x, this.y, this.width, this.height);
+        fill(0, 0, 0);
+        text(this.label, this.x + this.width/2 - this.label.length * this.labelSize/3.5, this.y + this.height/2 + 5);
+    } else if (this.shape === "circle") {
+        // remember that the radius is only half the circle's width/height!
+        ellipse(this.x, this.y, this.radius * 2, this.radius * 2);
+        fill(0, 0, 0);
+        text(this.label, this.x - this.label.length * this.labelSize/3.5, this.y + 5);
+    }
+};
+
+// Creating a new instance of the Button Object
+var button1 = new Button({
+    // position and size
+    x: 145, 
+    y: 220, 
+    radius: 50,
+    label: "?",
+    shape: "circle",
+    // what to do when hovered over
+    hoverEffect: function() {
+        this.color = color(200, 0, 0);
+    }, 
+    // or not hovered over
+    absenceHover: function() {
+        this.color = color(255, 0, 0);
+    },
+    // what to do when clicked
+    clickEffect: function() {
+        
+        points += 1; // changing the scene
+    },
+});
+
+
+
+// Scene Management; display the current scene
+draw = function() {
+    // update the "mouse" object's coordinates
+    mouse.x = mouseX;
+    mouse.y = mouseY;
+    image(getImage("cute/None"),50,50);
+    
+    // displaying the current scene
+    if (scene === "menu") {
+        image(getImage("cute/None"),50,50);
+        background(255, 255, 255);
+          text(rank,233,50);
+           text(points,50,50);
+        button1.display();
+    }
+        if (points === 10) {
+rank="D";
+
+       
+    }
+            if (points === 100) {
+rank="C";
+
+       
+    }
+            if (points === 500) {
+rank="B";
+       
+    }
+            if (points === 1000) {
+rank="A";
+       
+    }
+            if (points === 5000) {
+rank="A+";
+       
+    }
+            if (points === 10000) {
+rank="A++ ULTIMATE";
+       
+    }
+};
+
+
+// Scene Management; Change the current scene 
+mouseClicked = function() {
+    // if the scene is menu check for menu buttons
+    if (scene === "menu") {
+        button1.clicked();
+    } 
+    if (points === 10) {
+
+alert("YOU HAVE STATED YOUR JOURNEY!!! TAKE 100 POINTS TO GET A MEDAL")
+       
+    }
+    if (points === 100) {
+
+alert("YOU HAVE REACHED BRONZE MEDAL TAKE 500 POINTS TO GET A MEDAL")
+       
+    }
+    if (points === 500) {
+
+alert("YOU HAVE REACHED SILVER MEDAL TAKE 1000 POINTS TO GET A MEDAL")  
+    }
+    if (points === 1000) {
+
+alert("YOU HAVE REACHED GOLD MEDAL ")  
+    }
+    if (points === 10000) {
+
+alert("YOU HAVE REACHED THE SECERT ULTIMATE LEVEL")  
+    }
+    
+       
+    
+};
+            
+
+                
+            }
+            if (typeof draw !== 'undefined') processing.draw = draw;
+        });
+    </script>
+</body>
+</html>
