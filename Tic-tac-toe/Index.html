@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>JS</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/processing.js/1.4.8/processing.min.js"></script>
+</head>
+<style>
+ canvas{
+    
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 450px;
+  
+    }
+
+</style>
+<body>
+  
+            <canvas id="canvas"></canvas>
+    <script>
+       
+
+        var canvas = document.getElementById("canvas");
+        var processing = new Processing(canvas, function(processing) {
+            processing.size(400, 400);
+            processing.background(0xFFF);
+    
+            var mouseIsPressed = false;
+            processing.mousePressed = function () { mouseIsPressed = true; };
+            processing.mouseReleased = function () { mouseIsPressed = false; };
+    
+            var keyIsPressed = false;
+            processing.keyPressed = function () { keyIsPressed = true; };
+            processing.keyReleased = function () { keyIsPressed = false; };
+    
+            function getImage(s) {
+                var url = "https://www.kasandbox.org/programming-images/" + s + ".png";
+                processing.externals.sketch.imageCache.add(url);
+                return processing.loadImage(url);
+            }
+    
+            with (processing) {
+                
+
+
+                var playerTurn = 0;
+var NUM_COLS = 3;
+var NUM_ROWS = 3;
+var SYMBOLS = ["X","O"];
+
+var tiles = [];
+
+var checkWin = function() {
+
+};
+
+var Tile = function(x, y) {
+this.x = x;
+this.y = y;
+this.size = width/NUM_COLS;
+this.label = "";
+};
+Tile.prototype.draw = function() {
+fill(214, 247, 202);
+strokeWeight(2);
+rect(this.x, this.y, this.size, this.size, 10);
+textSize(100);
+textAlign(CENTER, CENTER);
+fill(0, 0, 0);
+text(this.label, this.x+this.size/2, this.y+this.size/2);
+};
+
+
+Tile.prototype.empty = function() {
+return this.label === "";
+};
+
+Tile.prototype.onClick = function() {
+if (!this.empty()) {
+return;
+
+}
+
+this.label = SYMBOLS[playerTurn];
+
+playerTurn++;
+if(playerTurn >= SYMBOLS.length)
+{playerTurn = 0;}};
+
+Tile.prototype.handleMouseClick = function(x, y) {
+// Check for mouse clicks inside the tile
+if (x >= this.x && x <= this.x + this.size && y >=this.y&&y<=this.y+this.size){this.onClick();}
+
+};
+
+for (var i = 0; i < NUM_COLS; i++) {
+for (var j = 0; j < NUM_ROWS; j++) {
+tiles.push(new Tile(i * (width/NUM_COLS-1), j * (height/NUM_ROWS-1)));
+}
+}
+
+var drawTiles = function() {
+for (var i in tiles) {
+tiles[i].draw();
+}
+};
+
+mouseReleased = function() {
+for (var i in tiles) {
+tiles[i].handleMouseClick(mouseX, mouseY);
+}};
+draw = function() {
+background(143, 143, 143);
+drawTiles();
+
+
+};
+
+                
+            }
+            if (typeof draw !== 'undefined') processing.draw = draw;
+        });
+    </script>
+</body>
+</html>
